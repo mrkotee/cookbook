@@ -1,7 +1,7 @@
 from django.urls import path, include
-from .views import main, recipe
+from .views import main, get_recipe
 
 urlpatterns = [
     path('', main),
-    path('recipe', recipe),
+    path('recipe/<int:recipe_id>', get_recipe),
 ]

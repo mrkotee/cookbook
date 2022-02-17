@@ -36,6 +36,7 @@ class Recipe(TimeStampMixin):
     name = models.CharField("Название", max_length=250, null=False)
     description = models.TextField("Описание")
     instruction = models.TextField("Инструкция по приготовлению")
+    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ингредиенты", related_name="recipes")
 
     class Meta:
         verbose_name = "Рецепт"
