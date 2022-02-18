@@ -1,0 +1,10 @@
+
+<span id="search_bar">
+  Search recipe: <input type="text" class="search" name="recipe_part_name" placeholder="Recipe name">
+  <select class="search"  name="ingredient">
+    <option></option>
+    {% for ingredient in ingredients %}
+    <option value="{{ ingredient.name }}">{{ ingredient.name }}</option>
+    {% endfor %}
+  </select>
+</span>

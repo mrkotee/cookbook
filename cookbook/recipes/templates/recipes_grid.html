@@ -1,0 +1,27 @@
+
+{% load static %}
+<!-- Recipes Items
+================== -->
+<section id="items">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Recipes</h2>
+            </div>
+        </div>
+        <div class="row">
+            {% for recipe in recipes %}
+            <!-- First recipe item -->
+            <div class="col-lg-4 col-md-6 col-sm-12 wow fadeIn">
+                <div class="recipe-item text-center">
+                    <a href="recipe/{{ recipe.pk }}">
+                        <img src="{% static 'images/bbq-pork-ribs.jpg' %}" alt="bbq-pork-ribs" />
+                    </a>
+                    <br />
+                    <h3>{{ recipe.name }}</h3>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

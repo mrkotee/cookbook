@@ -97,6 +97,10 @@ table {
 ** -----------------------------------------------------------------------------
 */
 
+#search_bar {
+  color: white;
+}
+
 #categories {
   background-color: #f9f9f9;
   padding-top: 12px;
