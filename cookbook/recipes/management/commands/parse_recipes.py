@@ -1,8 +1,10 @@
+import asyncio
+
 from django.core.management.base import BaseCommand
 from recipes.models import Recipe, Ingredient, RecipeDirection
 # from django.core.files import File
 # import os
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 
 
@@ -10,42 +12,75 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         main_url = "https://www.povarenok.ru/recipes/~"
 
-        ingredients = Ingredient.objects
+        loop = asyncio.get_event_loop()
+        tasks = [self.get_recipes(main_url, page_num) for page_num in range(1, 10)]
+        recipe_dicts = []
+        for _recipes in loop.run_until_complete(
+                            asyncio.gather(*tasks)):
+            recipe_dicts.extend(_recipes)
+
+        print("recipes parsed")
+        print("saving recipes to db...")
 
         counter = 0
-        for page_num in range(1, 10):
-            res = requests.get(main_url+str(page_num))
-            soup = BeautifulSoup(res.content, 'lxml')
+        for recipe_dict in recipe_dicts:
+            if not recipe_dict['ingredients'] or not recipe_dict['directions']:
+                continue
 
-            recipes = soup.select(".item-bl")
-            for recipe in recipes:
-                recipe_url = recipe.find("a").attrs['href']
-                recipe_name = recipe.find("h2").text.strip()
+            self.save_recipe_data(recipe_dict)
 
-                base_recipe = Recipe(name=recipe_name)
-                base_recipe.save()
-
-                for ingr in recipe.select(".ings p span a"):
-                    base_ingr = ingredients.filter(name=ingr.text).first()
-                    if not base_ingr:
-                        base_ingr = Ingredient(name=ingr.text)
-                        base_ingr.save()
-                    base_recipe.ingredients.add(base_ingr)
-
-                for direction_text in self.get_directions(recipe_url):
-                    base_direction = RecipeDirection(text=direction_text, recipe=base_recipe)
-                    base_direction.save()
-
-                base_recipe.save()
-                counter += 1
-                print(f"===== {counter} recipes load =====", end="\r")
+            counter += 1
+            print(f"===== {counter} recipes saved =====", end="\r")
         print()
 
-    def get_directions(self, recipe_url):
-        res = requests.get(recipe_url)
-        soup = BeautifulSoup(res.content, 'lxml')
-        for p in soup.select(".cooking-bl"):
-            yield p.find("p").text
+    async def get_html(self, url: str) -> str:
+        connector = aiohttp.TCPConnector(verify_ssl=False)
+        async with aiohttp.request('get', url, connector=connector) as response:
+            assert response.status == 200
+            html = await response.text()
+        await connector.close()
+        return html
+
+    async def get_recipe_dict(self, recipe_html) -> dict:
+        recipe_url = recipe_html.find("a").attrs['href']
+        recipe_name = recipe_html.find("h2").text.strip()
+        ingredients = [ingr.text for ingr in recipe_html.select(".ings p span a")]
+        directions = await self.get_directions(recipe_url)
+        return {"name": recipe_name,
+                "ingredients": ingredients,
+                "directions": directions,
+                }
+
+    async def get_directions(self, recipe_url: str) -> list:
+        html = await self.get_html(recipe_url)
+        soup = BeautifulSoup(html, 'lxml')
+        return [p.find("p").text for p in soup.select(".cooking-bl")]
+
+    async def get_recipes(self, main_url, page_num):
+        html = await self.get_html(main_url+str(page_num))
+        soup = BeautifulSoup(html, "lxml")
+
+        recipes_html = soup.select(".item-bl")
+        return await asyncio.gather(*[self.get_recipe_dict(recipe_html)
+                                      for recipe_html in recipes_html])
+
+    def save_recipe_data(self, recipe: dict) -> None:
+        base_recipe = Recipe(name=recipe['name'])
+        base_recipe.save()
+
+        for ingredient in recipe["ingredients"]:
+            base_ingr = Ingredient.objects.filter(name=ingredient).first()
+            if not base_ingr:
+                base_ingr = Ingredient(name=ingredient)
+                base_ingr.save()
+            base_recipe.ingredients.add(base_ingr)
+
+        for direction_text in recipe["directions"]:
+            base_direction = RecipeDirection(text=direction_text, recipe=base_recipe)
+            base_direction.save()
+
+        base_recipe.save()
+
 
 
 
