@@ -47,10 +47,10 @@ function ajax_search(search_dict) {
 
 function recipes_search_main() {
     recipe_title = $("input[name='recipe_part_name']")[0].value
-    selected_ingredient = $("select[name='ingredient']")[0].value
+    selected_ingredient = $("#ingredient_search").val()
     search_dict = {
         "recipe_title": recipe_title,
-        "ingredient": selected_ingredient,
+        "ingredients": selected_ingredient,
     };
     var posting = ajax_search(search_dict);
     posting.done( function (data) {
@@ -63,3 +63,6 @@ $(document).on('change', ".search", function () {
     recipes_search_main()
 });
 
+$(document).ready(function() {
+    $("#ingredient_search").select2();
+});
