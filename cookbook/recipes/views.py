@@ -1,5 +1,5 @@
 from django.shortcuts import render, Http404
-from .models import Recipe, Ingredient
+from .models import Recipe, Ingredient, RecipeDirection
 
 
 def main(request):
@@ -13,7 +13,7 @@ def main(request):
 
 
 def recipe_page(request, recipe_id):
-    recipe = Recipe.objects.prefetch_related("ingredients").get(pk=recipe_id)
+    recipe = Recipe.objects.prefetch_related("ingredients").prefetch_related("directions").get(pk=recipe_id)
 
     return render(request, "recipe.html", {
         "recipe": recipe,
