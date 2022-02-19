@@ -3,7 +3,7 @@ from django.db import models
 from django.forms.widgets import CheckboxSelectMultiple
 from .models import Recipe, Ingredient, RecipeDirection
 
-admin.site.register(RecipeDirection)
+# admin.site.register(RecipeDirection)
 # class MyModelAdmin(admin.ModelAdmin):
 #     formfield_overrides = {
 #         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
@@ -20,7 +20,7 @@ class IngredientAdmin(admin.ModelAdmin):
 class RecipeDirectionInline(admin.TabularInline):
     model = RecipeDirection
     extra = 0
-    min_num = 3
+    min_num = 2
 
 
 @admin.register(Recipe)
@@ -35,8 +35,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     inlines = [RecipeDirectionInline]
 
-    search_fields = ("name", )
-    list_filter = ("ingredients", )
+    search_fields = ("name__contains", "ingredients__name__contains",)
 
     list_per_page = 30
 

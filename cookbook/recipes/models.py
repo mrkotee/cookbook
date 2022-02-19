@@ -4,8 +4,8 @@ from django.db import models
 class TimeStampMixin(models.Model):
     """Реализация атрибутов времени создания и обновления записи"""
 
-    created_at = models.DateTimeField("Время создания записи", auto_now_add=True)
-    updated_at = models.DateTimeField("Время обновления записи", auto_now=True)
+    created_at = models.DateTimeField("Entry creation time", auto_now_add=True)
+    updated_at = models.DateTimeField("Entry last update time", auto_now=True)
 
     class Meta:
         abstract = True
@@ -13,11 +13,11 @@ class TimeStampMixin(models.Model):
 
 class Ingredient(models.Model):
     """Ingredients for recipes"""
-    name = models.CharField("Название", max_length=60, null=False, unique=True)
+    name = models.CharField("Name", max_length=60, null=False, unique=True)
 
     class Meta:
-        verbose_name = "Ингредиент"
-        verbose_name_plural = "Ингредиенты"
+        verbose_name = "Ingredient"
+        verbose_name_plural = "Ingredients"
 
     def __str__(self):
         return self.name
@@ -31,7 +31,7 @@ class Ingredient(models.Model):
 
 class RecipeDirection(models.Model):
     _step = models.IntegerField(null=True)
-    text = models.TextField()
+    text = models.TextField("Step instruction")
     recipe = models.ForeignKey("Recipe", related_name="directions", on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
@@ -48,27 +48,18 @@ class RecipeDirection(models.Model):
     def step(self):
         return self._step
 
-    # @step.setter
-    # def step(self, value):
-    #     recipe_steps = RecipeDirection.objects.filter(recipe=self.recipe).all()
-    #
-    #     if value > len(recipe_steps):
-    #         return None
-    #     existing_step = recipe_steps.filter(_step=self._step).first()
-    #     if existing_step:
-    #         return None
-    #     self._step = value
-    #     self.save()
+    def __str__(self):
+        return f"Step {self._step} of recipe {self.recipe}"
 
 
 class Recipe(TimeStampMixin):
     """Recipes"""
-    name = models.CharField("Название", max_length=250, null=False)
-    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ингредиенты", related_name="recipes")
+    name = models.CharField("Name", max_length=250, null=False)
+    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ingredients", related_name="recipes")
 
     class Meta:
-        verbose_name = "Рецепт"
-        verbose_name_plural = "Рецепты"
+        verbose_name = "Recipe"
+        verbose_name_plural = "Recipes"
         ordering = ["updated_at"]
 
     def __str__(self):
