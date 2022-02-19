@@ -15,7 +15,7 @@
             <div class="col-lg-4 col-md-6 col-sm-12 wow fadeIn">
                 <div class="recipe-item text-center">
                     <a href="recipe/{{ recipe.pk }}">
-                        <img src="{% static 'images/bbq-pork-ribs.jpg' %}" alt="bbq-pork-ribs" />
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe }}" />
                     </a>
                     <br />
                     <h3>{{ recipe.name }}</h3>

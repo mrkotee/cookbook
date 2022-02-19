@@ -29,7 +29,7 @@ class RecipeAdmin(admin.ModelAdmin):
                        "updated_at"]
 
     fields = [
-        ("name", "ingredients"),
+        ("name", "ingredients", "image"),
     ]
     autocomplete_fields = ["ingredients",]
 
