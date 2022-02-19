@@ -56,7 +56,7 @@ class Recipe(TimeStampMixin):
     """Recipes"""
     name = models.CharField("Name", max_length=250, null=False)
     ingredients = models.ManyToManyField(Ingredient, verbose_name="Ingredients", related_name="recipes")
-    image = models.ImageField("Image", upload_to="recipes", null=True)
+    image = models.ImageField("Image", upload_to="recipes", default="logo-white.svg")
 
     class Meta:
         verbose_name = "Recipe"
