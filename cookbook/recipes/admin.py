@@ -1,13 +1,5 @@
 from django.contrib import admin
-from django.db import models
-from django.forms.widgets import CheckboxSelectMultiple
 from .models import Recipe, Ingredient, RecipeDirection
-
-# admin.site.register(RecipeDirection)
-# class MyModelAdmin(admin.ModelAdmin):
-#     formfield_overrides = {
-#         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
-#     }
 
 
 @admin.register(Ingredient)

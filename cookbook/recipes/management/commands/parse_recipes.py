@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        """parsing recipes from www.povarenok.ru """
+
         main_url = "https://www.povarenok.ru/recipes/~"
 
         print("parsing recipes")

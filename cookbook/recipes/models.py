@@ -2,7 +2,7 @@ from django.db import models
 
 
 class TimeStampMixin(models.Model):
-    """Реализация атрибутов времени создания и обновления записи"""
+    """Add attrs times of creation and update time"""
 
     created_at = models.DateTimeField("Entry creation time", auto_now_add=True)
     updated_at = models.DateTimeField("Entry last update time", auto_now=True)
@@ -23,18 +23,17 @@ class Ingredient(models.Model):
         return self.name
 
 
-# class RecipeIngredient(Ingredient):
-#     """Recipe ingredients"""
-#     ingredient = models.ForeignKey("Ingredient", null=False, on_delete=models.PROTECT)
-#     amount = models.DecimalField("Количество", max_digits=6, decimal_places=2, null=False)
-#     recipe = models.ForeignKey("Recipe", on_delete=models.CASCADE)
-
 class RecipeDirection(models.Model):
+    """
+    Recipes directions
+    _step - numeration of directions
+    """
     _step = models.IntegerField(null=True)
-    text = models.TextField("Step instruction")
+    text = models.TextField("Step instruction", null=True)
     recipe = models.ForeignKey("Recipe", related_name="directions", on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
+        """if saving new direction automatically numerate _step"""
         if not self.pk:  # object is being created, thus no primary key field yet
             recipe_steps = RecipeDirection.objects.filter(recipe=self.recipe).all()
             if not recipe_steps:
@@ -53,7 +52,9 @@ class RecipeDirection(models.Model):
 
 
 class Recipe(TimeStampMixin):
-    """Recipes"""
+    """Recipe model.
+    Images stores in BASE_DIR/files/media/recipes
+    """
     name = models.CharField("Name", max_length=250, null=False)
     ingredients = models.ManyToManyField(Ingredient, verbose_name="Ingredients", related_name="recipes")
     image = models.ImageField("Image", upload_to="recipes", default="logo-white.png")
