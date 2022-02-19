@@ -27,7 +27,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     inlines = [RecipeDirectionInline]
 
-    search_fields = ("name__contains", "ingredients__name__contains",)
+    search_fields = ("name__icontains", "ingredients__name__icontains",)
 
     list_per_page = 30
 
