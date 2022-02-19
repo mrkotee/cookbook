@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import Recipe, Ingredient, RecipeDirection
 
 
@@ -17,8 +18,6 @@ class RecipeDirectionInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    readonly_fields = ["created_at",
-                       "updated_at"]
 
     fields = [
         ("name", "ingredients", "image"),
@@ -33,3 +32,14 @@ class RecipeAdmin(admin.ModelAdmin):
 
     list_select_related = True
 
+    list_display = (
+        "name",
+        "ingrs_list",
+    )
+
+    def ingrs_list(self, obj):
+        if not obj.ingredients:
+            return "-"
+        return mark_safe("<br/>".join(str(ingredient) for ingredient in obj.ingredients.all()))
+
+    ingrs_list.short_description = "Ingredients"
